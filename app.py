@@ -6,7 +6,7 @@ import streamlit as st
 from thefuzz import fuzz
 
 # Place PDF path here
-PATH = "streamlit_matching/genius_pdf.pdf"
+PATH = "genius_pdf.pdf"
 
 with pdfplumber.open(PATH) as pdf:
 	pages = pdf.pages
