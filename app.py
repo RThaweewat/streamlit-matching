@@ -2,6 +2,7 @@ import pandas as pd
 import pdfplumber
 import re
 import numpy as np
+import streamlit as st
 from thefuzz import fuzz
 from thefuzz import process
 
@@ -13,7 +14,7 @@ with pdfplumber.open(PATH) as pdf:
 	page_no = []
 	text_page = []
 	chap = []
-	for i,pg in enumerate(pages):
+	for i, pg in enumerate(pages):
 		# Get page no and text
 		page = pdf.pages[i]
 		text = page.extract_text()
@@ -24,21 +25,34 @@ with pdfplumber.open(PATH) as pdf:
 		# Fix multiple spaces
 		text = " ".join(text.split())
 		# Get real page
-		get_chap = re.findall(r'บทที่ (\d+)', text)
+		get_chap = re.findall(r"บทที่ (\d+)", text)
 		# append lists
 		chap.append(get_chap)
 		text_page.append(text)
 		page_no.append(i)
 
 # Combine lists
-df = pd.DataFrame(list(zip(page_no, chap, text_page, )),
-                  columns =['Page No', 'chapter', 'Text'])
+df = pd.DataFrame(
+	list(zip(page_no, chap, text_page, )), columns=["Page No", "chapter", "Text"]
+)
 # Get Clean chapter no.
-df['chapter'] = df['chapter'].str[0]
-df['chapter'] = df['chapter'].fillna(method='ffill')
-df['chapter'] = np.where(df.index < 21, 0, df['chapter'])
+df["chapter"] = df["chapter"].str[0]
+df["chapter"] = df["chapter"].fillna(method="ffill")
+df["chapter"] = np.where(df.index < 21, 0, df["chapter"])
 
-df_chap_only = df.query('chapter != 0')
-df_chap_only['Score'] = df_chap_only.apply(lambda row : get_ratio(row['Text'], target_word), axis = 1)
-df_chap_only[['Page No','chapter','Text', 'Score']].sort_values('Score', ascending=False)
 
+def get_ratio(word, target):
+	return fuzz.token_set_ratio(word, target)
+
+
+target_word = st.text_input('Movie title', 'Life of Brian')
+
+df_chap_only = df.query("chapter != 0")
+df_chap_only["Score"] = df_chap_only.apply(
+	lambda row: get_ratio(row["Text"], target_word), axis=1
+)
+df_chap_only[["Page No", "chapter", "Text", "Score"]].sort_values(
+	"Score", ascending=False
+)
+
+st.dataframe(data=df_chap_only, width=None, height=None)
