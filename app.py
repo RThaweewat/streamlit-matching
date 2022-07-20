@@ -32,12 +32,14 @@ with pdfplumber.open(PATH) as pdf:
 
 # Combine lists
 df = pd.DataFrame(
-	list(zip(page_no, chap, text_page, )), columns=["Page No", "chapter", "Text"]
+	list(zip(page_no, chap, text_page)), columns=["Page No", "chapter", "Text"]
 )
+
 # Get Clean chapter no.
 df["chapter"] = df["chapter"].str[0]
 df["chapter"] = df["chapter"].fillna(method="ffill")
 df["chapter"] = np.where(df.index < 21, 0, df["chapter"])
+df["Text"] = df["Text"].replace("28 อัจฉริยะผู้พลิกโลก", " ")
 
 
 def get_ratio(word, target):
