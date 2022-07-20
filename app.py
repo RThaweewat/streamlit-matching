@@ -21,6 +21,7 @@ with pdfplumber.open(PATH) as pdf:
 		text = text.replace("\r", " ")
 		text = text.replace("\n", " ")
 		text = text.replace("\t", " ")
+		text = text.replace("28 อัจฉริยะผู้พลิกโลก", " ")
 		# Fix multiple spaces
 		text = " ".join(text.split())
 		# Get real page
@@ -39,7 +40,6 @@ df = pd.DataFrame(
 df["chapter"] = df["chapter"].str[0]
 df["chapter"] = df["chapter"].fillna(method="ffill")
 df["chapter"] = np.where(df.index < 21, 0, df["chapter"])
-df["Text"] = df["Text"].replace("28 อัจฉริยะผู้พลิกโลก", " ")
 
 
 def get_ratio(word, target):
