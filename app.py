@@ -44,7 +44,7 @@ def get_ratio(word, target):
     return fuzz.token_set_ratio(word, target)
 
 
-target_word = st.text_input("ใส่ข้อความที่นี่:", " ")
+target_word = st.text_input("ใส่ข้อความที่นี่:", "ใครสร้าง Microsoft")
 
 df_chap_only = df.query("chapter != 0")
 df_chap_only["Score"] = df_chap_only.apply(
@@ -55,6 +55,7 @@ final = df_chap_only[["Page No", "chapter", "Text", "Score"]].sort_values(
 )
 
 st.dataframe(data=final[["chapter", "Text", "Score"]].head(5), width=None, height=None)
+st.table(final[["chapter", "Text", "Score"]].head(5))
 
 
 @st.cache
