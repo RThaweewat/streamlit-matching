@@ -4,10 +4,9 @@ import re
 import numpy as np
 import streamlit as st
 from thefuzz import fuzz
-from thefuzz import process
 
 # Place PDF path here
-PATH = "/genius_pdf.pdf"
+PATH = "streamlit_matching/genius_pdf.pdf"
 
 with pdfplumber.open(PATH) as pdf:
 	pages = pdf.pages
