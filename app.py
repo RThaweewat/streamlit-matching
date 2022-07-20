@@ -41,8 +41,11 @@ df["chapter"] = df["chapter"].str[0]
 df["chapter"] = df["chapter"].fillna(method="ffill")
 df["chapter"] = np.where(df.index < 21, 0, df["chapter"])
 
+st.subheader("Text Similarity Example")
+st.markdown("Source: หนังสือ 28 อัจฉริยะผู้พลิกโลก")
+
 option = st.selectbox(
-	"Select the algorithm",
+	"Please select the algorithm (token_set_ratio is fine!)",
 	(
 		"ratio",
 		"token_set_ratio",
@@ -69,8 +72,6 @@ def get_ratio(word, target, option_select=option):
 		return fuzz.partial_token_sort_ratio(word, target)
 
 
-st.subheader("Text Similarity Example")
-st.markdown("Source: หนังสือ 28 อัจฉริยะผู้พลิกโลก")
 target_word = st.text_input("ใส่ข้อความที่นี่:", "ใครสร้าง Microsoft")
 
 df_chap_only = df.query("chapter != 0")
@@ -80,9 +81,9 @@ df_chap_only["Score"] = df_chap_only.apply(
 final = df_chap_only[["Page No", "chapter", "Text", "Score"]].sort_values(
 	"Score", ascending=False
 )
-st.subheader("ผลการค้นหาที่ใกล้เคียง 5 อันดับ")
+st.subheader("Top 5 related chapters")
 st.dataframe(data=final[["chapter", "Text", "Score"]].head(5), width=None, height=None)
-st.subheader("ผลการค้นหาที่ใกล้เคียงที่สุด")
+st.subheader("Most related chapter")
 st.table(final[["chapter", "Text", "Score"]].head(1))
 
 
@@ -94,7 +95,7 @@ def convert_df(df):
 
 csv = convert_df(final.head(10))
 st.download_button(
-	label="ดาวโหลดผลการค้นหา (CSV)",
+	label="Download full similarity score here (CSV)",
 	data=csv,
 	file_name="large_df.csv",
 	mime="text/csv",
