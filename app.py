@@ -44,7 +44,7 @@ def get_ratio(word, target):
 	return fuzz.token_set_ratio(word, target)
 
 
-target_word = st.text_input('Movie title', 'Life of Brian')
+target_word = st.text_input('ใส่ข้อความที่นี่:', ' ')
 
 df_chap_only = df.query("chapter != 0")
 df_chap_only["Score"] = df_chap_only.apply(
@@ -54,4 +54,4 @@ final = df_chap_only[["Page No", "chapter", "Text", "Score"]].sort_values(
 	"Score", ascending=False
 )
 
-st.dataframe(data=final[['Chapter','Text','Score']].head(5), width=None, height=None)
+st.dataframe(data=final[['chapter','Text','Score']].head(5), width=None, height=None)
