@@ -50,8 +50,8 @@ df_chap_only = df.query("chapter != 0")
 df_chap_only["Score"] = df_chap_only.apply(
 	lambda row: get_ratio(row["Text"], target_word), axis=1
 )
-df_chap_only[["Page No", "chapter", "Text", "Score"]].sort_values(
+final = df_chap_only[["Page No", "chapter", "Text", "Score"]].sort_values(
 	"Score", ascending=False
 )
 
-st.dataframe(data=df_chap_only, width=None, height=None)
+st.dataframe(data=final[['Chapter','Text','Score']].head(5), width=None, height=None)
