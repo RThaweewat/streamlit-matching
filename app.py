@@ -5,6 +5,12 @@ import numpy as np
 import streamlit as st
 from thefuzz import fuzz
 
+import math
+from collections import Counter
+from pythainlp import word_tokenize
+from pythainlp.corpus import thai_stopwords
+from pythainlp.util import normalize
+
 # Place PDF path here
 PATH = "genius_pdf.pdf"
 
@@ -44,6 +50,7 @@ df["chapter"] = np.where(df.index < 21, 0, df["chapter"])
 st.subheader("Text Similarity Example")
 st.markdown("Source: หนังสือ 28 อัจฉริยะผู้พลิกโลก")
 
+"""
 option = st.selectbox(
 	"Please select the algorithm (token_set_ratio is fine!)",
 	(
@@ -70,13 +77,42 @@ def get_ratio(word, target, option_select=option):
 		return fuzz.partial_token_set_ratio(word, target)
 	elif option_select == "partial_token_sort_ratio":
 		return fuzz.partial_token_sort_ratio(word, target)
+"""
 
+
+def get_cosine(text1, text2):
+    vec1 = text_to_vector(text1)
+    vec2 = text_to_vector(text2)
+    intersection = set(vec1.keys()) & set(vec2.keys())
+    numerator = sum([vec1[x] * vec2[x] for x in intersection])
+    sum1 = sum([vec1[x] ** 2 for x in list(vec1.keys())])
+    sum2 = sum([vec2[x] ** 2 for x in list(vec2.keys())])
+    denominator = math.sqrt(sum1) * math.sqrt(sum2)
+
+    if not denominator:
+        return 0.0
+    else:
+        return float(numerator) / denominator
+
+
+def remove_stop(list_word):
+    stopwords = list(thai_stopwords())
+    list_word_not_stopwords = [i for i in list_word if i not in stopwords]
+    return list_word_not_stopwords
+
+
+def text_to_vector(text):
+    text = (normalize(text))
+    tokens = word_tokenize(text, engine="newmm-safe")
+    tokens = remove_stop(tokens)
+    tokens = Counter(tokens)
+    return tokens
 
 target_word = st.text_input("ใส่ข้อความที่นี่:", "ใครสร้าง Microsoft")
 
 df_chap_only = df.query("chapter != 0")
 df_chap_only["Score"] = df_chap_only.apply(
-	lambda row: get_ratio(row["Text"], target_word), axis=1
+	lambda row: get_cosine(row["Text"], target_word), axis=1
 )
 final = df_chap_only[["Page No", "chapter", "Text", "Score"]].sort_values(
 	"Score", ascending=False
